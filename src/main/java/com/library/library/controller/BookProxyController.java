@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/proxy")
-public class ProxyController {
+public class BookProxyController {
 
     private static final String API_BASE_URL = "http://26.111.116.51:8090/api/books";
     private final RestTemplate restTemplate = new RestTemplate();

@@ -18,14 +18,14 @@ public class AuthProxyController {
     private static final String USERS_API_URL = "http://26.111.116.51:8092/api/users";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // ==================== АУТЕНТИФИКАЦИЯ ====================
+
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody String loginJson) {
         try {
             String url = AUTH_API_URL + "/login";
             System.out.println("POST login: " + url);
-            System.out.println("Body: " + loginJson);//вывод данных
+            System.out.println("Body: " + loginJson);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -103,9 +103,9 @@ public class AuthProxyController {
         }
     }
 
-    // ==================== РАБОТА С ПОЛЬЗОВАТЕЛЯМИ ====================
 
-    // GET - Получить всех пользователей
+
+
     @GetMapping("/users")
     public ResponseEntity<String> getAllUsers(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
@@ -137,7 +137,7 @@ public class AuthProxyController {
         }
     }
 
-    // GET - Получить пользователя по ID
+
     @GetMapping("/users/{id}")
     public ResponseEntity<String> getUserById(
             @PathVariable Long id,
@@ -171,7 +171,7 @@ public class AuthProxyController {
         }
     }
 
-    // GET - Получить текущего пользователя
+
     @GetMapping("/users/me")
     public ResponseEntity<String> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -201,7 +201,7 @@ public class AuthProxyController {
         }
     }
 
-    // PUT - Обновить пользователя
+
     @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(
             @PathVariable Long id,
@@ -236,7 +236,7 @@ public class AuthProxyController {
         }
     }
 
-    // DELETE - Удалить пользователя
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(
             @PathVariable Long id,
@@ -267,7 +267,7 @@ public class AuthProxyController {
         }
     }
 
-    // GET - Поиск пользователей по nickname, email и role
+
     @GetMapping("/users/search")
     public ResponseEntity<String> searchUsers(
             @RequestParam(required = false) String nickname,
@@ -325,7 +325,7 @@ public class AuthProxyController {
                     .body("{\"error\": \"Ошибка поиска пользователей: " + e.getMessage() + "\"}");
         }
     }
-    // ==================== АДМИНСКИЕ МЕТОДЫ ПОЛЬЗОВАТЕЛЕЙ ====================
+    // Методы админов
 
     @GetMapping("/admin/users")
     public ResponseEntity<String> getAllUsersAdmin(@RequestHeader("Authorization") String authHeader) {

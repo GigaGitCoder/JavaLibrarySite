@@ -85,6 +85,11 @@
             opacity: 0.9;
         }
 
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .register-link {
             text-align: center;
             margin-top: 20px;
@@ -97,6 +102,10 @@
             font-weight: 600;
         }
 
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
         .error-message {
             background: #fee;
             color: #c33;
@@ -104,6 +113,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             display: none;
+            border-left: 4px solid #c33;
         }
 
         .success-message {
@@ -113,6 +123,33 @@
             border-radius: 8px;
             margin-bottom: 20px;
             display: none;
+            border-left: 4px solid #3c3;
+        }
+
+        .warning-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #ffc107;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -126,6 +163,7 @@
 
         <div id="errorMessage" class="error-message"></div>
         <div id="successMessage" class="success-message"></div>
+        <div id="warningMessage" class="warning-message"></div>
 
         <form id="loginForm">
             <div class="form-group">
@@ -138,7 +176,9 @@
                 <input type="password" id="password" required>
             </div>
 
-            <button type="submit" class="btn-submit">Войти</button>
+            <button type="submit" class="btn-submit" id="submitBtn">
+                Войти
+            </button>
         </form>
 
         <div class="register-link">
@@ -156,9 +196,15 @@
 
         const errorDiv = document.getElementById('errorMessage');
         const successDiv = document.getElementById('successMessage');
+        const warningDiv = document.getElementById('warningMessage');
+        const submitBtn = document.getElementById('submitBtn');
 
         errorDiv.style.display = 'none';
         successDiv.style.display = 'none';
+        warningDiv.style.display = 'none';
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Вход... <span class="loading-spinner"></span>';
 
         try {
             const response = await fetch('/proxy/auth/login', {
@@ -171,29 +217,59 @@
 
             const data = await response.json();
 
-
             if (response.ok && data.token) {
-                // ВАЖНО: Сохраняем ВСЕ данные в localStorage
                 localStorage.setItem('jwt_token', data.token);
                 localStorage.setItem('user_nickname', data.nickname || email);
                 localStorage.setItem('user_email', data.email || email);
-                localStorage.setItem('user_role', data.role || 'USER'); // ← КЛЮЧЕВАЯ СТРОКА!
+                localStorage.setItem('user_role', data.role || 'USER');
 
-
-
-                successDiv.textContent = 'Вход выполнен успешно! Перенаправление...';
+                successDiv.textContent = '✅ Вход выполнен успешно! Перенаправление...';
                 successDiv.style.display = 'block';
 
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1000);
-            } else {
-                throw new Error(data.error || 'Ошибка входа');
+            }
+            else if (response.status === 500 && data.error &&
+                     (data.error.includes('duplicate key') ||
+                      data.message.includes('duplicate key') ||
+                      data.message.includes('already exists'))) {
+
+                const existingToken = localStorage.getItem('jwt_token');
+
+                if (existingToken) {
+                    localStorage.setItem('user_nickname', email.split('@')[0]);
+                    localStorage.setItem('user_email', email);
+
+                    warningDiv.innerHTML = '⚠️ Вы уже вошли в систему ранее. Используется существующая сессия.<br>Перенаправление...';
+                    warningDiv.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    throw new Error('Ошибка токена. Попробуйте выйти и войти заново.');
+                }
+            }
+            else {
+                throw new Error(data.message || data.error || 'Неверный email или пароль');
             }
         } catch (error) {
-            console.error('❌ Ошибка входа:', error);
-            errorDiv.textContent = error.message || 'Неверный email или пароль';
+            errorDiv.textContent = error.message || 'Произошла ошибка при входе. Попробуйте еще раз.';
             errorDiv.style.display = 'block';
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Войти';
+        }
+    });
+
+    window.addEventListener('load', function() {
+        const token = localStorage.getItem('jwt_token');
+
+        if (token) {
+            const warningDiv = document.getElementById('warningMessage');
+            warningDiv.innerHTML = 'ℹ️ Вы уже авторизованы. <a href="/" style="color: #667eea; font-weight: bold;">Перейти на главную</a>';
+            warningDiv.style.display = 'block';
         }
     });
 </script>

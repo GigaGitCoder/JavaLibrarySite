@@ -17,6 +17,48 @@
             min-height: 100vh;
         }
 
+        /* ВАЖНО: Скрываем весь контент по умолчанию */
+        #adminContent {
+            display: none;
+        }
+
+        .access-denied {
+            max-width: 600px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .access-denied h2 {
+            color: #dc3545;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .access-denied p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .btn-action {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        .btn-action:hover {
+            opacity: 0.85;
+        }
+
         .container {
             max-width: 1600px;
             margin: 20px auto;
@@ -307,122 +349,145 @@
 <!-- Include Header -->
 <div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container">
-    <div class="page-header">
-        <h1>👥 Управление пользователями</h1>
-        <div class="header-actions">
-            <button class="btn btn-admin" onclick="openRegisterAdminModal()">⚙️ Зарегистрировать админа</button>
-        </div>
-    </div>
-
-    <!-- Поиск -->
-    <div class="search-section">
-        <input type="text" id="searchNickname" placeholder="Поиск по nickname">
-        <input type="text" id="searchEmail" placeholder="Поиск по email">
-        <select id="searchRole">
-            <option value="">Все роли</option>
-            <option value="ADMIN">Администратор</option>
-            <option value="USER">Пользователь</option>
-        </select>
-        <button class="btn btn-primary" onclick="searchUsers()">Поиск</button>
-        <button class="btn btn-secondary" onclick="resetSearch()">Сбросить</button>
-    </div>
-
-    <!-- Таблица пользователей -->
-    <div class="table-container">
-        <div id="loadingUsers" class="loading">Загрузка пользователей...</div>
-        <table id="usersTable" style="display: none;">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nickname</th>
-                <th>Email</th>
-                <th>Роль</th>
-                <th>Дата создания</th>
-                <th>Действия</th>
-            </tr>
-            </thead>
-            <tbody id="usersTableBody">
-            <!-- Данные загружаются через JavaScript -->
-            </tbody>
-        </table>
+<!-- Сообщение об отказе в доступе (показывается для не-админов) -->
+<div id="accessDenied" style="display: none;">
+    <div class="access-denied">
+        <h2>🚫 Доступ запрещён</h2>
+        <p>У вас нет прав для просмотра этой страницы.</p>
+        <p>Только администраторы могут управлять пользователями.</p>
+        <a href="/" class="btn-action">← Вернуться на главную</a>
     </div>
 </div>
 
-<!-- Модальное окно редактирования пользователя -->
-<div id="userModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalTitle">Редактировать пользователя</h2>
-            <span class="close" onclick="closeModal()">&times;</span>
+<!-- Основной контент (скрыт по умолчанию) -->
+<div id="adminContent">
+    <div class="container">
+        <div class="page-header">
+            <h1>👥 Управление пользователями</h1>
+            <div class="header-actions">
+                <button class="btn btn-admin" onclick="openRegisterAdminModal()">⚙️ Зарегистрировать админа</button>
+            </div>
         </div>
-        <form id="userForm">
-            <input type="hidden" id="userId">
 
-            <div class="form-group">
-                <label for="userNickname">Nickname *</label>
-                <input type="text" id="userNickname" required>
-            </div>
+        <div class="search-section">
+            <input type="text" id="searchNickname" placeholder="Поиск по nickname">
+            <input type="text" id="searchEmail" placeholder="Поиск по email">
+            <select id="searchRole">
+                <option value="">Все роли</option>
+                <option value="ADMIN">Администратор</option>
+                <option value="USER">Пользователь</option>
+            </select>
+            <button class="btn btn-primary" onclick="searchUsers()">Поиск</button>
+            <button class="btn btn-secondary" onclick="resetSearch()">Сбросить</button>
+        </div>
 
-            <div class="form-group">
-                <label for="userEmail">Email *</label>
-                <input type="email" id="userEmail" required>
-            </div>
+        <div class="table-container">
+            <div id="loadingUsers" class="loading">Загрузка пользователей...</div>
+            <table id="usersTable" style="display: none;">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nickname</th>
+                    <th>Email</th>
+                    <th>Роль</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
-            <div class="form-group">
-                <label for="userPassword">Новый пароль (оставьте пустым, чтобы не менять)</label>
-                <input type="password" id="userPassword">
-                <div class="password-hint">Минимум 6 символов</div>
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Редактировать пользователя</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
             </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-                <button type="submit" class="btn btn-success">Сохранить</button>
+                <div class="form-group">
+                    <label for="userNickname">Nickname *</label>
+                    <input type="text" id="userNickname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email *</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Новый пароль (оставьте пустым, чтобы не менять)</label>
+                    <input type="password" id="userPassword">
+                    <div class="password-hint">Минимум 6 символов</div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Зарегистрировать администратора</h2>
+                <span class="close" onclick="closeAdminModal()">&times;</span>
             </div>
-        </form>
+            <form id="adminForm">
+                <div class="form-group">
+                    <label for="adminNickname">Nickname *</label>
+                    <input type="text" id="adminNickname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminEmail">Email *</label>
+                    <input type="email" id="adminEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Пароль *</label>
+                    <input type="password" id="adminPassword" required>
+                    <div class="password-hint">Минимум 6 символов</div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAdminModal()">Отмена</button>
+                    <button type="submit" class="btn btn-success">Зарегистрировать</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- Модальное окно регистрации админа -->
-<div id="adminModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>⚙️ Зарегистрировать администратора</h2>
-            <span class="close" onclick="closeAdminModal()">&times;</span>
-        </div>
-        <form id="adminForm">
-            <div class="form-group">
-                <label for="adminNickname">Nickname *</label>
-                <input type="text" id="adminNickname" required>
-            </div>
-
-            <div class="form-group">
-                <label for="adminEmail">Email *</label>
-                <input type="email" id="adminEmail" required>
-            </div>
-
-            <div class="form-group">
-                <label for="adminPassword">Пароль *</label>
-                <input type="password" id="adminPassword" required>
-                <div class="password-hint">Минимум 6 символов</div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeAdminModal()">Отмена</button>
-                <button type="submit" class="btn btn-success">Зарегистрировать</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Уведомления -->
 <div id="notification" class="notification"></div>
 
 <script>
+    // ПРОВЕРКА ПРАВ ДОСТУПА - ВЫПОЛНЯЕТСЯ ПЕРВОЙ
+    (function() {
+        const token = localStorage.getItem('jwt_token');
+        const role = localStorage.getItem('user_role');
+
+        if (!token || (role !== 'ADMIN' && role !== 'ROLE_ADMIN')) {
+            document.getElementById('accessDenied').style.display = 'block';
+
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 3000);
+
+            return;
+        }
+
+        document.getElementById('adminContent').style.display = 'block';
+    })();
+
     let currentUsers = [];
     const token = localStorage.getItem('jwt_token');
 
-    // Загрузка всех пользователей
     async function loadUsers() {
         try {
             const response = await fetch('/proxy/auth/admin/users', {
@@ -442,12 +507,10 @@
             document.getElementById('loadingUsers').style.display = 'none';
             document.getElementById('usersTable').style.display = 'table';
         } catch (error) {
-            console.error('Ошибка загрузки пользователей:', error);
             showNotification('Ошибка загрузки пользователей', 'error');
         }
     }
 
-    // Отображение пользователей в таблице
     function displayUsers(users) {
         const tbody = document.getElementById('usersTableBody');
         tbody.innerHTML = '';
@@ -480,7 +543,6 @@
         });
     }
 
-    // Поиск пользователей
     async function searchUsers() {
         const nickname = document.getElementById('searchNickname').value;
         const email = document.getElementById('searchEmail').value;
@@ -506,12 +568,10 @@
             currentUsers = Array.isArray(data) ? data : (data.content || []);
             displayUsers(currentUsers);
         } catch (error) {
-            console.error('Ошибка поиска:', error);
             showNotification('Ошибка поиска пользователей', 'error');
         }
     }
 
-    // Сброс поиска
     function resetSearch() {
         document.getElementById('searchNickname').value = '';
         document.getElementById('searchEmail').value = '';
@@ -519,7 +579,6 @@
         loadUsers();
     }
 
-    // Открыть модальное окно редактирования
     function openEditModal(user) {
         document.getElementById('userId').value = user.id;
         document.getElementById('userNickname').value = user.nickname || '';
@@ -528,23 +587,19 @@
         document.getElementById('userModal').style.display = 'block';
     }
 
-    // Закрыть модальное окно редактирования
     function closeModal() {
         document.getElementById('userModal').style.display = 'none';
     }
 
-    // Открыть модальное окно регистрации админа
     function openRegisterAdminModal() {
         document.getElementById('adminForm').reset();
         document.getElementById('adminModal').style.display = 'block';
     }
 
-    // Закрыть модальное окно регистрации админа
     function closeAdminModal() {
         document.getElementById('adminModal').style.display = 'none';
     }
 
-    // Обработка формы редактирования
     document.getElementById('userForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -554,7 +609,6 @@
             email: document.getElementById('userEmail').value
         };
 
-        // Добавляем пароль только если он указан
         const password = document.getElementById('userPassword').value;
         if (password) {
             userData.password = password;
@@ -579,12 +633,10 @@
                 throw new Error(errorData.error || 'Ошибка обновления');
             }
         } catch (error) {
-            console.error('Ошибка:', error);
             showNotification(error.message || 'Ошибка обновления пользователя', 'error');
         }
     });
 
-    // Обработка формы регистрации админа
     document.getElementById('adminForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -613,12 +665,10 @@
                 throw new Error(errorData.error || 'Ошибка регистрации');
             }
         } catch (error) {
-            console.error('Ошибка:', error);
             showNotification(error.message || 'Ошибка регистрации администратора', 'error');
         }
     });
 
-    // Удаление пользователя
     async function deleteUser(id) {
         if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) {
             return;
@@ -639,12 +689,10 @@
                 throw new Error('Ошибка удаления');
             }
         } catch (error) {
-            console.error('Ошибка:', error);
             showNotification('Ошибка удаления пользователя', 'error');
         }
     }
 
-    // Показать уведомление
     function showNotification(message, type) {
         const notification = document.getElementById('notification');
         notification.textContent = message;
@@ -656,7 +704,6 @@
         }, 3000);
     }
 
-    // Закрытие модальных окон по клику вне их
     window.onclick = function(event) {
         const userModal = document.getElementById('userModal');
         const adminModal = document.getElementById('adminModal');
@@ -669,8 +716,9 @@
         }
     }
 
-    // Загрузка пользователей при загрузке страницы
-    window.addEventListener('load', loadUsers);
+    if (document.getElementById('adminContent').style.display === 'block') {
+        window.addEventListener('load', loadUsers);
+    }
 </script>
 </body>
 </html>

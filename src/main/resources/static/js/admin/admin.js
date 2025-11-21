@@ -1,4 +1,4 @@
-// Логика главной админ-панели
+
 
 function checkAdminAccess() {
     const token = localStorage.getItem('jwt_token');

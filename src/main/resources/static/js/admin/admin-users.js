@@ -1,4 +1,4 @@
-// Управление пользователями
+
 
 let currentUsers = [];
 const token = localStorage.getItem('jwt_token');

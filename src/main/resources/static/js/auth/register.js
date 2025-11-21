@@ -1,4 +1,4 @@
-// Логика регистрации
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');

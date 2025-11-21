@@ -1,4 +1,4 @@
-// Логика header
+
 
 const AuthUtils = {
     getToken() {

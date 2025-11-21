@@ -1,4 +1,4 @@
-// Логика главной страницы
+
 
 let allBooks = [];
 
@@ -134,11 +134,11 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Инициализация при загрузке страницы
+
 document.addEventListener('DOMContentLoaded', function() {
     loadAllBooks();
 
-    // Поиск по Enter в полях ввода
+
     const searchInputs = [
         'searchTitle',
         'searchAuthor',

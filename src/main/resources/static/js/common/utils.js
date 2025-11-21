@@ -1,4 +1,3 @@
-// Общие утилиты
 
 function showNotification(message, type) {
     const notification = document.getElementById('notification');

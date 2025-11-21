@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями - Админ-панель</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .page-header h1 {
+            color: #333;
+            font-size: 32px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-admin {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-admin:hover {
+            background: #ee5a52;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .search-section input, .search-section select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-section input:focus, .search-section select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .role-admin {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .role-user {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .close {
+            font-size: 32px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            display: none;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- Include Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <div class="page-header">
+        <h1>👥 Управление пользователями</h1>
+        <div class="header-actions">
+            <button class="btn btn-admin" onclick="openRegisterAdminModal()">⚙️ Зарегистрировать админа</button>
+        </div>
+    </div>
+
+    <!-- Поиск -->
+    <div class="search-section">
+        <input type="text" id="searchNickname" placeholder="Поиск по nickname">
+        <input type="text" id="searchEmail" placeholder="Поиск по email">
+        <select id="searchRole">
+            <option value="">Все роли</option>
+            <option value="ADMIN">Администратор</option>
+            <option value="USER">Пользователь</option>
+        </select>
+        <button class="btn btn-primary" onclick="searchUsers()">Поиск</button>
+        <button class="btn btn-secondary" onclick="resetSearch()">Сбросить</button>
+    </div>
+
+    <!-- Таблица пользователей -->
+    <div class="table-container">
+        <div id="loadingUsers" class="loading">Загрузка пользователей...</div>
+        <table id="usersTable" style="display: none;">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nickname</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Дата создания</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody id="usersTableBody">
+            <!-- Данные загружаются через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования пользователя -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Редактировать пользователя</h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <form id="userForm">
+            <input type="hidden" id="userId">
+
+            <div class="form-group">
+                <label for="userNickname">Nickname *</label>
+                <input type="text" id="userNickname" required>
+            </div>
+
+            <div class="form-group">
+                <label for="userEmail">Email *</label>
+                <input type="email" id="userEmail" required>
+            </div>
+
+            <div class="form-group">
+                <label for="userPassword">Новый пароль (оставьте пустым, чтобы не менять)</label>
+                <input type="password" id="userPassword">
+                <div class="password-hint">Минимум 6 символов</div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                <button type="submit" class="btn btn-success">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно регистрации админа -->
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙️ Зарегистрировать администратора</h2>
+            <span class="close" onclick="closeAdminModal()">&times;</span>
+        </div>
+        <form id="adminForm">
+            <div class="form-group">
+                <label for="adminNickname">Nickname *</label>
+                <input type="text" id="adminNickname" required>
+            </div>
+
+            <div class="form-group">
+                <label for="adminEmail">Email *</label>
+                <input type="email" id="adminEmail" required>
+            </div>
+
+            <div class="form-group">
+                <label for="adminPassword">Пароль *</label>
+                <input type="password" id="adminPassword" required>
+                <div class="password-hint">Минимум 6 символов</div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAdminModal()">Отмена</button>
+                <button type="submit" class="btn btn-success">Зарегистрировать</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Уведомления -->
+<div id="notification" class="notification"></div>
+
+<script>
+    let currentUsers = [];
+    const token = localStorage.getItem('jwt_token');
+
+    // Загрузка всех пользователей
+    async function loadUsers() {
+        try {
+            const response = await fetch('/proxy/auth/admin/users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка загрузки пользователей');
+            }
+
+            const data = await response.json();
+            currentUsers = Array.isArray(data) ? data : (data.content || []);
+            displayUsers(currentUsers);
+
+            document.getElementById('loadingUsers').style.display = 'none';
+            document.getElementById('usersTable').style.display = 'table';
+        } catch (error) {
+            console.error('Ошибка загрузки пользователей:', error);
+            showNotification('Ошибка загрузки пользователей', 'error');
+        }
+    }
+
+    // Отображение пользователей в таблице
+    function displayUsers(users) {
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Пользователи не найдены</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const roleBadge = user.role === 'ADMIN'
+                ? '<span class="role-badge role-admin">ADMIN</span>'
+                : '<span class="role-badge role-user">USER</span>';
+
+            const createdDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Не указана';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.nickname || 'Не указан'}</td>
+                <td>${user.email}</td>
+                <td>${roleBadge}</td>
+                <td>${createdDate}</td>
+                <td class="actions">
+                    <button class="btn btn-warning" onclick='openEditModal(${JSON.stringify(user).replace(/'/g, "&#39;")})'>Изменить</button>
+                    <button class="btn btn-danger" onclick="deleteUser(${user.id})">Удалить</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Поиск пользователей
+    async function searchUsers() {
+        const nickname = document.getElementById('searchNickname').value;
+        const email = document.getElementById('searchEmail').value;
+        const role = document.getElementById('searchRole').value;
+
+        let url = '/proxy/auth/admin/users/search?';
+        if (nickname) url += `nickname=${encodeURIComponent(nickname)}&`;
+        if (email) url += `email=${encodeURIComponent(email)}&`;
+        if (role) url += `role=${encodeURIComponent(role)}&`;
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка поиска');
+            }
+
+            const data = await response.json();
+            currentUsers = Array.isArray(data) ? data : (data.content || []);
+            displayUsers(currentUsers);
+        } catch (error) {
+            console.error('Ошибка поиска:', error);
+            showNotification('Ошибка поиска пользователей', 'error');
+        }
+    }
+
+    // Сброс поиска
+    function resetSearch() {
+        document.getElementById('searchNickname').value = '';
+        document.getElementById('searchEmail').value = '';
+        document.getElementById('searchRole').value = '';
+        loadUsers();
+    }
+
+    // Открыть модальное окно редактирования
+    function openEditModal(user) {
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userNickname').value = user.nickname || '';
+        document.getElementById('userEmail').value = user.email;
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userModal').style.display = 'block';
+    }
+
+    // Закрыть модальное окно редактирования
+    function closeModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
+
+    // Открыть модальное окно регистрации админа
+    function openRegisterAdminModal() {
+        document.getElementById('adminForm').reset();
+        document.getElementById('adminModal').style.display = 'block';
+    }
+
+    // Закрыть модальное окно регистрации админа
+    function closeAdminModal() {
+        document.getElementById('adminModal').style.display = 'none';
+    }
+
+    // Обработка формы редактирования
+    document.getElementById('userForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const userId = document.getElementById('userId').value;
+        const userData = {
+            nickname: document.getElementById('userNickname').value,
+            email: document.getElementById('userEmail').value
+        };
+
+        // Добавляем пароль только если он указан
+        const password = document.getElementById('userPassword').value;
+        if (password) {
+            userData.password = password;
+        }
+
+        try {
+            const response = await fetch(`/proxy/auth/admin/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                showNotification('Пользователь успешно обновлен', 'success');
+                closeModal();
+                loadUsers();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка обновления');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            showNotification(error.message || 'Ошибка обновления пользователя', 'error');
+        }
+    });
+
+    // Обработка формы регистрации админа
+    document.getElementById('adminForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const adminData = {
+            nickname: document.getElementById('adminNickname').value,
+            email: document.getElementById('adminEmail').value,
+            password: document.getElementById('adminPassword').value
+        };
+
+        try {
+            const response = await fetch('/proxy/auth/admin/users/registerAsAdmin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(adminData)
+            });
+
+            if (response.ok) {
+                showNotification('Администратор успешно зарегистрирован', 'success');
+                closeAdminModal();
+                loadUsers();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка регистрации');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            showNotification(error.message || 'Ошибка регистрации администратора', 'error');
+        }
+    });
+
+    // Удаление пользователя
+    async function deleteUser(id) {
+        if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/proxy/auth/admin/users/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                showNotification('Пользователь успешно удален', 'success');
+                loadUsers();
+            } else {
+                throw new Error('Ошибка удаления');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            showNotification('Ошибка удаления пользователя', 'error');
+        }
+    }
+
+    // Показать уведомление
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    // Закрытие модальных окон по клику вне их
+    window.onclick = function(event) {
+        const userModal = document.getElementById('userModal');
+        const adminModal = document.getElementById('adminModal');
+
+        if (event.target === userModal) {
+            closeModal();
+        }
+        if (event.target === adminModal) {
+            closeAdminModal();
+        }
+    }
+
+    // Загрузка пользователей при загрузке страницы
+    window.addEventListener('load', loadUsers);
+</script>
+</body>
+</html>

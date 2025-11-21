@@ -16,7 +16,7 @@ public class BookProxyController {
     private static final String API_BASE_URL = "http://26.111.116.51:8090/api/books";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // GET - Получить все книги
+
     @GetMapping("/books")
     public ResponseEntity<String> getAllBooks() {
         try {
@@ -37,7 +37,7 @@ public class BookProxyController {
         }
     }
 
-    // GET - Получить книгу по ID
+
     @GetMapping("/books/{id}")
     public ResponseEntity<String> getBookById(@PathVariable Long id) {
         try {
@@ -57,7 +57,7 @@ public class BookProxyController {
         }
     }
 
-    // POST - Создать новую книгу
+
     @PostMapping("/books")
     public ResponseEntity<String> createBook(@RequestBody String bookJson) {
         try {
@@ -84,7 +84,7 @@ public class BookProxyController {
         }
     }
 
-    // PUT - Обновить книгу
+
     @PutMapping("/books/{id}")
     public ResponseEntity<String> updateBook(@PathVariable Long id, @RequestBody String bookJson) {
         try {
@@ -115,7 +115,7 @@ public class BookProxyController {
         }
     }
 
-    // DELETE - Удалить книгу
+
     @DeleteMapping("/books/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
         try {
@@ -134,7 +134,7 @@ public class BookProxyController {
         }
     }
 
-    // GET - Поиск книг
+
     @GetMapping("/books/search")
     public ResponseEntity<String> searchBooks(
             @RequestParam(required = false) String title,

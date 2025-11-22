@@ -14,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
 @CrossOrigin(origins = "*")
 public class AuthProxyController {
 
-    private static final String AUTH_API_URL = "http://26.111.116.51:8092/api/auth";
-    private static final String USERS_API_URL = "http://26.111.116.51:8092/api/users";
+    private static final String AUTH_API_URL = "http://localhost:8092/api/auth";
+    private static final String USERS_API_URL = "http://localhost:8092/api/users";
     private final RestTemplate restTemplate = new RestTemplate();
 
 
@@ -270,7 +270,7 @@ public class AuthProxyController {
 
     @GetMapping("/users/search")
     public ResponseEntity<String> searchUsers(
-            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String role,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -278,8 +278,8 @@ public class AuthProxyController {
         try {
             StringBuilder urlBuilder = new StringBuilder(USERS_API_URL + "/search?");
 
-            if (nickname != null && !nickname.isEmpty()) {
-                urlBuilder.append("nickname=").append(nickname).append("&");
+            if (name != null && !name.isEmpty()) {
+                urlBuilder.append("name=").append(name).append("&");
             }
             if (email != null && !email.isEmpty()) {
                 urlBuilder.append("email=").append(email).append("&");
@@ -431,7 +431,7 @@ public class AuthProxyController {
 
     @GetMapping("/admin/users/search")
     public ResponseEntity<String> searchUsersAdmin(
-            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String role,
             @RequestHeader("Authorization") String authHeader) {
@@ -439,8 +439,8 @@ public class AuthProxyController {
         try {
             StringBuilder urlBuilder = new StringBuilder("http://26.111.116.51:8092/api/admin/search?");
 
-            if (nickname != null && !nickname.isEmpty()) {
-                urlBuilder.append("nickname=").append(nickname).append("&");
+            if (name != null && !name.isEmpty()) {
+                urlBuilder.append("name=").append(name).append("&");
             }
             if (email != null && !email.isEmpty()) {
                 urlBuilder.append("email=").append(email).append("&");

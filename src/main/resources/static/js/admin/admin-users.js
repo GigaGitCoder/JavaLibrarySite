@@ -59,12 +59,12 @@ function displayUsers(users) {
 }
 
 async function searchUsers() {
-    const nickname = document.getElementById('searchNickname').value;
+    const name = document.getElementById('searchNickname').value;
     const email = document.getElementById('searchEmail').value;
     const role = document.getElementById('searchRole').value;
 
     let url = '/proxy/auth/admin/users/search?';
-    if (nickname) url += `nickname=${encodeURIComponent(nickname)}&`;
+    if (name) url += `name=${encodeURIComponent(name)}&`;
     if (email) url += `email=${encodeURIComponent(email)}&`;
     if (role) url += `role=${encodeURIComponent(role)}&`;
 

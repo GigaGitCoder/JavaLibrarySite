@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/proxy")
 public class BookProxyController {
 
-    private static final String API_BASE_URL = "http://26.111.116.51:8090/api/books";
+    private static final String API_BASE_URL = "http://localhost:8090/api/books";
     private final RestTemplate restTemplate = new RestTemplate();
 
 
